@@ -1,0 +1,191 @@
+.wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  margin: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1920px;
+  grid-template-rows: auto auto;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+.score {
+  margin: auto auto auto auto;
+  display: grid;
+  grid-template-columns: 530px auto 530px;
+  grid-template-rows: auto;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  text-align: center;
+}
+
+.score_total {
+  margin-top: 44px;
+  display: grid;
+  grid-template-rows: auto 28.51px;
+}
+
+.sub_score {
+  margin-top: 10px;
+  width: 357px;
+  display: grid;
+  grid-template-columns: auto auto auto;
+  grid-template-rows: auto;
+  row-gap: 18px;
+  background-image: url(../img/score_sep.png);
+  background-repeat: no-repeat;
+  background-position: top;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+.down_line {
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: auto 15px;
+}
+
+.downline_up {
+  margin-left: 12px;
+  height: 10px;
+  width: 333px;
+  background-color: green;
+  border-bottom-left-radius: 110px;
+  border-bottom-right-radius: 110px;
+  z-index: 0;
+}
+
+.downline_down {
+  margin-top: -10px;
+  height: 27.5px;
+  background: -o-linear-gradient(359.89deg, #C4C4C4 1.61%, #FFFFFF 54.34%, #C4C4C4 99.9%);
+  background: linear-gradient(90.11deg, #C4C4C4 1.61%, #FFFFFF 54.34%, #C4C4C4 99.9%);
+}
+
+.player_name_left {
+  margin-top: 94px;
+  font-family: Inter;
+  font-size: 44px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 53px;
+  letter-spacing: 0em;
+  background: -o-linear-gradient(359.89deg, #C4C4C4 1.61%, #FFFFFF 54.34%, #C4C4C4 99.9%);
+  background: linear-gradient(90.11deg, #C4C4C4 1.61%, #FFFFFF 54.34%, #C4C4C4 99.9%);
+  -webkit-transform: skew(18deg);
+      -ms-transform: skew(18deg);
+          transform: skew(18deg);
+  border-radius: 20px;
+  text-transform: skew(0deg);
+}
+
+.player_name_right {
+  margin-top: 94px;
+  font-family: Inter;
+  font-size: 44px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 53px;
+  letter-spacing: 0em;
+  background: -o-linear-gradient(359.89deg, #C4C4C4 1.61%, #FFFFFF 54.34%, #C4C4C4 99.9%);
+  background: linear-gradient(90.11deg, #C4C4C4 1.61%, #FFFFFF 54.34%, #C4C4C4 99.9%);
+  -webkit-transform: skew(-18deg);
+      -ms-transform: skew(-18deg);
+          transform: skew(-18deg);
+  border-radius: 20px;
+}
+
+.player_name_left h4 {
+  margin: 42px auto 35px auto;
+  -webkit-transform: skew(-20deg);
+      -ms-transform: skew(-20deg);
+          transform: skew(-20deg);
+}
+
+.player_name_right h4 {
+  margin: 42px auto 35px auto;
+  -webkit-transform: skew(20deg);
+      -ms-transform: skew(20deg);
+          transform: skew(20deg);
+}
+
+.player_score {
+  margin: 32px 5px 32px 5px;
+  font-family: Inter;
+  font-size: 60px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 73px;
+  letter-spacing: 0em;
+  color: #ffffff;
+}
+
+.total_info {
+  margin: auto auto auto auto;
+  width: 1320px;
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: auto auto;
+  background: rgba(67, 67, 67, 0.4);
+}
+
+.date_time_location {
+  margin: 44px auto auto auto;
+  display: grid;
+  grid-template-columns: auto auto auto auto auto;
+  gap: 5px;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  font-family: Inter;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 29px;
+  letter-spacing: 0em;
+  text-align: left;
+  color: #FFFFFF;
+}
+
+.main_block {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  grid-template-rows: 659px;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+.seporator_vs {
+  margin: 247px 144px auto 144px;
+  font-family: Inter;
+  font-size: 96px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 116px;
+  letter-spacing: 0em;
+  text-align: left;
+  color: #FFFFFF;
+}
+
+.player_name_logo {
+  margin: 95px auto auto auto;
+}
+
+.player_logo {
+  width: 332px;
+}
