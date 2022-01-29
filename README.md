@@ -9,3 +9,5 @@ How to use:
 - Press apply when overlay is ready
 - Copy bottom view link
 - Insert this link into OBS/FastoCloud as browser source
+
+Demo: https://overlay.fastocloud.com
