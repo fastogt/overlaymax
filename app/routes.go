@@ -24,6 +24,8 @@ func (s *AppServer) Index(w http.ResponseWriter, r *http.Request) {
 	type response struct {
 		Domain  string
 		Plugins []Plugin
+		Project string
+		Version string
 	}
 
 	plugins := []Plugin{}
@@ -41,7 +43,7 @@ func (s *AppServer) Index(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, err)
 		return
 	}
-	respondWithTemplate(w, tmpl, response{s.config.HttpHost, plugins})
+	respondWithTemplate(w, tmpl, response{s.config.HttpHost, plugins, ProjectName, VersionApp})
 }
 
 func (s *AppServer) Static(w http.ResponseWriter, r *http.Request) {
