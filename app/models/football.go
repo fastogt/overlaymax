@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"gitlab.com/fastogt/gofastogt"
+	"gitlab.com/fastogt/gofastogt/gofastogt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
