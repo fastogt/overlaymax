@@ -4,48 +4,34 @@ import (
 	"encoding/json"
 	"errors"
 
+	log "github.com/sirupsen/logrus"
 	"gitlab.com/fastogt/gofastogt/gofastogt"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type FootballOverlayFields struct {
 	OverlayBase
-	Players      []Player `bson:"players"        json:"players"`
-	TimeLocation `bson:"date_time_location"      json:"date_time_location"`
+	Players      []Player `json:"players"`
+	TimeLocation `json:"date_time_location"`
 }
 
 type Player struct {
-	Team  string `bson:"team"        json:"team"`
-	Score int    `bson:"score"       json:"score"`
-	Logo  string `bson:"logo"        json:"logo"`
+	Team  string `json:"team"`
+	Score int    `json:"score"`
+	Logo  string `json:"logo"`
 }
 
 type TimeLocation struct {
-	LocalTime    gofastogt.UtcTimeMsec `bson:"local_time"        json:"local_time"`
-	LocalStadium string                `bson:"local_stadium"     json:"local_stadium"`
+	LocalTime    gofastogt.UtcTimeMsec `json:"local_time"`
+	LocalStadium string                `json:"local_stadium"`
 }
 
-type FootballOverlayMongo struct {
-	ID                    primitive.ObjectID `bson:"_id"`
-	ShowLogos             bool               `bson:"show_logos"`
-	FootballOverlayFields `bson:",inline"`
-}
-
-func (overlay *FootballOverlayMongo) GetOverlayToFront() FootballOverlayFront {
-	return FootballOverlayFront{
-		ID:                    overlay.ID.Hex(),
-		ShowLogos:             overlay.ShowLogos,
-		FootballOverlayFields: overlay.FootballOverlayFields,
-	}
-}
-
-type FootballOverlayFront struct {
+type FootballOverlay struct {
 	ID        string `json:"id"`
 	ShowLogos bool   `json:"show_logos"`
 	FootballOverlayFields
 }
 
-func (f *FootballOverlayFront) UnmarshalJSON(data []byte) error {
+func (f *FootballOverlay) UnmarshalJSON(data []byte) error {
 	request := struct {
 		ID *string `json:"id"`
 		FootballOverlayFields
@@ -67,25 +53,16 @@ func (f *FootballOverlayFront) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func NewFootballOverlay() *FootballOverlayFront {
+func NewFootballOverlay() *FootballOverlay {
 	base := OverlayBase{BGColor: "green"}
-	id := primitive.NewObjectID().Hex()
+	id, err := gofastogt.GenerateString(24)
+	if err != nil {
+		log.Errorf("failed to generate id %v", err)
+	}
 	players := []Player{{Team: "Barcelona", Score: 0, Logo: "/static/football/img/barcelona.png"}, {Team: "Manchester United", Score: 0, Logo: "/static/football/img/manchester_united.png"}}
 	time := TimeLocation{LocalTime: gofastogt.MakeUTCTimestamp(), LocalStadium: "USA National"}
 	showLogos := true
 
 	fields := FootballOverlayFields{base, players, time}
-	return &FootballOverlayFront{id, showLogos, fields}
-}
-
-func (overlay *FootballOverlayFront) OverlayToDB() (*FootballOverlayMongo, error) {
-	id, err := primitive.ObjectIDFromHex(overlay.ID)
-	if err != nil {
-		return nil, err
-	}
-	return &FootballOverlayMongo{
-		ID:                    id,
-		FootballOverlayFields: overlay.FootballOverlayFields,
-		ShowLogos:             overlay.ShowLogos,
-	}, nil
+	return &FootballOverlay{*id, showLogos, fields}
 }

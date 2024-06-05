@@ -2,64 +2,73 @@ package store
 
 import (
 	"backend/app/models"
-	"context"
+	"encoding/json"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/akrylysov/pogreb"
 )
 
 type OverlayCollection struct {
-	handle *mongo.Collection
+	db *pogreb.DB
 }
 
-func NewOverlayCollection(handle *mongo.Collection) *OverlayCollection {
+func NewOverlayCollection(db *pogreb.DB) *OverlayCollection {
 	return &OverlayCollection{
-		handle: handle,
+		db: db,
 	}
 }
 
-func (collection *OverlayCollection) Create(overlay *models.FootballOverlayMongo) error {
-	if collection.handle == nil {
+func (collection *OverlayCollection) Create(overlay *models.FootballOverlay) error {
+	if collection.db == nil {
 		return ErrNilCollection
 	}
-	_, err := collection.handle.InsertOne(context.TODO(), overlay)
+
+	data, err := json.Marshal(overlay)
+	if err != nil {
+		return err
+	}
+
+	err = collection.db.Put([]byte(overlay.ID), data)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (collection *OverlayCollection) Update(overlay *models.FootballOverlayMongo) error {
-	if collection.handle == nil {
+func (collection *OverlayCollection) Update(overlay *models.FootballOverlay) error {
+	if collection.db == nil {
 		return ErrNilCollection
 	}
-	filter := bson.M{"_id": overlay.ID}
-	updates := bson.M{
-		"$set": bson.M{
-			"players":            overlay.Players,
-			"date_time_location": overlay.TimeLocation,
-			"bg_color":           overlay.BGColor,
-			"show_logos":         overlay.ShowLogos,
-		},
+
+	data, err := json.Marshal(overlay)
+	if err != nil {
+		return err
 	}
-	_, err := collection.handle.UpdateOne(context.TODO(), filter, updates)
+
+	err = collection.db.Put([]byte(overlay.ID), data)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (collection *OverlayCollection) FindById(id primitive.ObjectID) (*models.FootballOverlayMongo, error) {
-	if collection.handle == nil {
+func (collection *OverlayCollection) FindById(id string) (*models.FootballOverlay, error) {
+	if collection.db == nil {
 		return nil, ErrNilCollection
 	}
-	var overlay models.FootballOverlayMongo
-	filter := bson.M{"_id": id}
-	res := collection.handle.FindOne(context.TODO(), filter)
-	err := res.Decode(&overlay)
+
+	data, err := collection.db.Get([]byte(id))
 	if err != nil {
 		return nil, ErrIDNotFind
 	}
+	if data == nil {
+		return nil, ErrIDNotFind
+	}
+
+	var overlay models.FootballOverlay
+	err = json.Unmarshal(data, &overlay)
+	if err != nil {
+		return nil, err
+	}
+
 	return &overlay, nil
 }

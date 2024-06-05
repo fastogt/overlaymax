@@ -12,10 +12,14 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const kProjectFolder = ".overlaymax"
+const kRuntimeFolder = kProjectFolder + "/runtime_folder"
+const kDBFolder = kRuntimeFolder + "/db"
+
 type AppServer struct {
 	config           Config
 	http             *http.Server
-	database         store.MongoDB
+	database         store.PogrebDB
 	wsUpdatesManager *updates.UpdatesManagerWs
 	logFile          *os.File
 }
@@ -35,7 +39,7 @@ func (app *AppServer) Initialize(config Config) {
 		log.SetOutput(app.logFile)
 	}
 	app.configLogger()
-	err = app.database.InitializeMongoDB(app.config.DbUri)
+	err = app.database.InitializePogrebDB(kDBFolder)
 	if err != nil {
 		log.Error("error initialize database")
 	}

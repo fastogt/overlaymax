@@ -3,7 +3,6 @@ package app
 import (
 	"backend/app/models"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -13,7 +12,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Plugin struct {
@@ -66,50 +64,40 @@ func (s *AppServer) CreateOverlay(w http.ResponseWriter, r *http.Request) {
 		Status bool `json:"status"`
 	}
 
-	var req models.FootballOverlayFront
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	var overlay models.FootballOverlay
+	if err := json.NewDecoder(r.Body).Decode(&overlay); err != nil {
 		respondWithError(w, http.StatusBadRequest, err)
 		return
 	}
-	id, err := primitive.ObjectIDFromHex(req.ID)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, errors.New("invalid id field"))
-		return
-	}
+	id := overlay.ID
 
-	overlay, err := req.OverlayToDB()
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, err)
-		return
-	}
-
-	_, err = s.database.OverlayCollection.FindById(id)
+	_, err := s.database.OverlayCollection.FindById(id)
 	if err == nil {
-		if err = s.database.OverlayCollection.Update(overlay); err != nil {
+		if err = s.database.OverlayCollection.Update(&overlay); err != nil {
 			respondWithError(w, http.StatusBadRequest, err)
 			return
 		}
 	} else {
-		if err := s.database.OverlayCollection.Create(overlay); err != nil {
+		if err := s.database.OverlayCollection.Create(&overlay); err != nil {
 			respondWithError(w, http.StatusBadRequest, err)
 			return
 		}
 	}
 
-	data, err := json.Marshal(req)
+	data, err := json.Marshal(overlay)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, err)
 		return
 	}
 
-	s.wsUpdatesManager.BroadcastUpdateOverlay(req.ID, data)
+	s.wsUpdatesManager.BroadcastUpdateOverlay(overlay.ID, data)
 	respondWithStructJSON(w, http.StatusCreated, response{Status: true})
 }
 
 func (s *AppServer) AdminResponce(w http.ResponseWriter, r *http.Request) {
 	type response struct {
 		Domain  string
-		Overlay models.FootballOverlayFront
+		Overlay models.FootballOverlay
 	}
 
 	params := mux.Vars(r)
@@ -127,16 +115,12 @@ func (s *AppServer) AdminResponce(w http.ResponseWriter, r *http.Request) {
 func (s *AppServer) OverlayResponce(w http.ResponseWriter, r *http.Request) {
 	type response struct {
 		Domain  string
-		Overlay models.FootballOverlayFront
+		Overlay models.FootballOverlay
 	}
 
 	params := mux.Vars(r)
 	plugin := params["plugin"]
-	id, err := primitive.ObjectIDFromHex(params["id"])
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, errors.New("id field is required"))
-		return
-	}
+	id := params["id"]
 	overlay, err := s.database.OverlayCollection.FindById(id)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, err)
@@ -148,7 +132,7 @@ func (s *AppServer) OverlayResponce(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, err)
 		return
 	}
-	respondWithTemplate(w, tmpl, response{s.config.HttpHost, overlay.GetOverlayToFront()})
+	respondWithTemplate(w, tmpl, response{s.config.HttpHost, *overlay})
 }
 
 func (s *AppServer) updateOverlay(w http.ResponseWriter, r *http.Request) {
