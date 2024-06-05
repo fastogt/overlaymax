@@ -12,7 +12,6 @@ type Settings struct {
 	LogPath  string `yaml:"log_path"`
 	Cors     bool   `yaml:"cors"`
 
-	DbUri    string `yaml:"db_uri"`
 	HttpHost string `yaml:"http_host"`
 }
 

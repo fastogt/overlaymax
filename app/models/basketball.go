@@ -8,33 +8,22 @@ import (
 	"gitlab.com/fastogt/gofastogt/gofastogt"
 )
 
-type FootballOverlayFields struct {
+type BasketballOverlayFields struct {
 	OverlayBase
 	Players      []Player `json:"players"`
 	TimeLocation `json:"date_time_location"`
 }
 
-type Player struct {
-	Team  string `json:"team"`
-	Score int    `json:"score"`
-	Logo  string `json:"logo"`
-}
-
-type TimeLocation struct {
-	LocalTime    gofastogt.UtcTimeMsec `json:"local_time"`
-	LocalStadium string                `json:"local_stadium"`
-}
-
-type FootballOverlay struct {
+type BasketballOverlay struct {
 	ID        string `json:"id"`
 	ShowLogos bool   `json:"show_logos"`
-	FootballOverlayFields
+	BasketballOverlayFields
 }
 
-func (f *FootballOverlay) UnmarshalJSON(data []byte) error {
+func (f *BasketballOverlay) UnmarshalJSON(data []byte) error {
 	request := struct {
 		ID *string `json:"id"`
-		FootballOverlayFields
+		BasketballOverlayFields
 		ShowLogos *bool `json:"show_logos"`
 	}{}
 	err := json.Unmarshal(data, &request)
@@ -49,20 +38,20 @@ func (f *FootballOverlay) UnmarshalJSON(data []byte) error {
 	}
 	f.ShowLogos = *request.ShowLogos
 	f.ID = *request.ID
-	f.FootballOverlayFields = request.FootballOverlayFields
+	f.BasketballOverlayFields = request.BasketballOverlayFields
 	return nil
 }
 
-func NewFootballOverlay() *FootballOverlay {
+func NewBasketballOverlay() *BasketballOverlay {
 	base := OverlayBase{BGColor: "green"}
 	id, err := gofastogt.GenerateString(24)
 	if err != nil {
 		log.Errorf("failed to generate id %v", err)
 	}
-	players := []Player{{Team: "Barcelona", Score: 0, Logo: "/static/football/img/barcelona.png"}, {Team: "Manchester United", Score: 0, Logo: "/static/football/img/manchester_united.png"}}
+	players := []Player{{Team: "Golden State Warriors", Score: 0, Logo: "/static/basketball/img/golden_state_warriors.png"}, {Team: "Chicago Bulls", Score: 0, Logo: "/static/basketball/img/chicago_bulls.png"}}
 	time := TimeLocation{LocalTime: gofastogt.MakeUTCTimestamp(), LocalStadium: "USA National"}
 	showLogos := true
 
-	fields := FootballOverlayFields{base, players, time}
-	return &FootballOverlay{*id, showLogos, fields}
+	fields := BasketballOverlayFields{base, players, time}
+	return &BasketballOverlay{*id, showLogos, fields}
 }
