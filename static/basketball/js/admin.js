@@ -26,7 +26,7 @@ function updatePage(domain, pid) {
     }
     $.ajax({
         type: 'POST',
-        url: domain + "/overlay/football/create",
+        url: domain + "/overlay/basketball/create",
         data: JSON.stringify(received_msg),
         contentType: "application/json",
         dataType: 'json',

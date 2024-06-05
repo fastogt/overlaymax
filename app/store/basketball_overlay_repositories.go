@@ -7,17 +7,17 @@ import (
 	"github.com/akrylysov/pogreb"
 )
 
-type OverlayCollection struct {
+type BasketballOverlayCollection struct {
 	db *pogreb.DB
 }
 
-func NewOverlayCollection(db *pogreb.DB) *OverlayCollection {
-	return &OverlayCollection{
+func NewBasketballOverlayCollection(db *pogreb.DB) *BasketballOverlayCollection {
+	return &BasketballOverlayCollection{
 		db: db,
 	}
 }
 
-func (collection *OverlayCollection) Create(overlay *models.FootballOverlay) error {
+func (collection *BasketballOverlayCollection) Create(overlay *models.BasketballOverlay) error {
 	if collection.db == nil {
 		return ErrNilCollection
 	}
@@ -34,7 +34,7 @@ func (collection *OverlayCollection) Create(overlay *models.FootballOverlay) err
 	return nil
 }
 
-func (collection *OverlayCollection) Update(overlay *models.FootballOverlay) error {
+func (collection *BasketballOverlayCollection) Update(overlay *models.BasketballOverlay) error {
 	if collection.db == nil {
 		return ErrNilCollection
 	}
@@ -51,7 +51,7 @@ func (collection *OverlayCollection) Update(overlay *models.FootballOverlay) err
 	return nil
 }
 
-func (collection *OverlayCollection) FindById(id string) (*models.FootballOverlay, error) {
+func (collection *BasketballOverlayCollection) FindById(id string) (*models.BasketballOverlay, error) {
 	if collection.db == nil {
 		return nil, ErrNilCollection
 	}
@@ -64,7 +64,7 @@ func (collection *OverlayCollection) FindById(id string) (*models.FootballOverla
 		return nil, ErrIDNotFind
 	}
 
-	var overlay models.FootballOverlay
+	var overlay models.BasketballOverlay
 	err = json.Unmarshal(data, &overlay)
 	if err != nil {
 		return nil, err

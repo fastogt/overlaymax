@@ -60,79 +60,139 @@ func (s *AppServer) Static(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *AppServer) CreateOverlay(w http.ResponseWriter, r *http.Request) {
-	type response struct {
-		Status bool `json:"status"`
-	}
+	params := mux.Vars(r)
+	plugin := params["plugin"]
 
-	var overlay models.FootballOverlay
-	if err := json.NewDecoder(r.Body).Decode(&overlay); err != nil {
-		respondWithError(w, http.StatusBadRequest, err)
-		return
-	}
-	id := overlay.ID
-
-	_, err := s.database.OverlayCollection.FindById(id)
-	if err == nil {
-		if err = s.database.OverlayCollection.Update(&overlay); err != nil {
+	if plugin == "football" {
+		type response struct {
+			Status bool `json:"status"`
+		}
+		var overlay models.FootballOverlay
+		if err := json.NewDecoder(r.Body).Decode(&overlay); err != nil {
 			respondWithError(w, http.StatusBadRequest, err)
 			return
 		}
-	} else {
-		if err := s.database.OverlayCollection.Create(&overlay); err != nil {
+		id := overlay.ID
+
+		_, err := s.database.FootballOverlayCollection.FindById(id)
+		if err == nil {
+			if err = s.database.FootballOverlayCollection.Update(&overlay); err != nil {
+				respondWithError(w, http.StatusBadRequest, err)
+				return
+			}
+		} else {
+			if err := s.database.FootballOverlayCollection.Create(&overlay); err != nil {
+				respondWithError(w, http.StatusBadRequest, err)
+				return
+			}
+		}
+
+		data, err := json.Marshal(overlay)
+		if err != nil {
 			respondWithError(w, http.StatusBadRequest, err)
 			return
 		}
-	}
 
-	data, err := json.Marshal(overlay)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, err)
-		return
-	}
+		s.wsUpdatesManager.BroadcastUpdateOverlay(overlay.ID, data)
+		respondWithStructJSON(w, http.StatusCreated, response{Status: true})
+	} else if plugin == "basketball" {
+		type response struct {
+			Status bool `json:"status"`
+		}
+		var overlay models.BasketballOverlay
+		if err := json.NewDecoder(r.Body).Decode(&overlay); err != nil {
+			respondWithError(w, http.StatusBadRequest, err)
+			return
+		}
+		id := overlay.ID
 
-	s.wsUpdatesManager.BroadcastUpdateOverlay(overlay.ID, data)
-	respondWithStructJSON(w, http.StatusCreated, response{Status: true})
+		_, err := s.database.BasketballOverlayCollection.FindById(id)
+		if err == nil {
+			if err = s.database.BasketballOverlayCollection.Update(&overlay); err != nil {
+				respondWithError(w, http.StatusBadRequest, err)
+				return
+			}
+		} else {
+			if err := s.database.BasketballOverlayCollection.Create(&overlay); err != nil {
+				respondWithError(w, http.StatusBadRequest, err)
+				return
+			}
+		}
+
+		data, err := json.Marshal(overlay)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, err)
+			return
+		}
+
+		s.wsUpdatesManager.BroadcastUpdateOverlay(overlay.ID, data)
+		respondWithStructJSON(w, http.StatusCreated, response{Status: true})
+	}
 }
 
 func (s *AppServer) AdminResponce(w http.ResponseWriter, r *http.Request) {
-	type response struct {
-		Domain  string
-		Overlay models.FootballOverlay
-	}
-
 	params := mux.Vars(r)
 	plugin := params["plugin"]
-	overlay := models.NewFootballOverlay()
+
 	tmpl := template.New("admin.html")
 	tmpl, err := tmpl.ParseFiles(fmt.Sprintf("static/%s/admin.html", plugin))
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, err)
 		return
 	}
-	respondWithTemplate(w, tmpl, response{s.config.HttpHost, *overlay})
+
+	if plugin == "football" {
+		type response struct {
+			Domain  string
+			Overlay models.FootballOverlay
+		}
+		overlay := models.NewFootballOverlay()
+		respondWithTemplate(w, tmpl, response{s.config.HttpHost, *overlay})
+	} else if plugin == "basketball" {
+		type response struct {
+			Domain  string
+			Overlay models.BasketballOverlay
+		}
+		overlay := models.NewBasketballOverlay()
+		respondWithTemplate(w, tmpl, response{s.config.HttpHost, *overlay})
+	}
+
 }
 
 func (s *AppServer) OverlayResponce(w http.ResponseWriter, r *http.Request) {
-	type response struct {
-		Domain  string
-		Overlay models.FootballOverlay
-	}
-
 	params := mux.Vars(r)
 	plugin := params["plugin"]
 	id := params["id"]
-	overlay, err := s.database.OverlayCollection.FindById(id)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, err)
-		return
-	}
 
 	tmpl, err := template.New("index.html").ParseFiles(fmt.Sprintf("static/%s/index.html", plugin))
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, err)
 		return
 	}
-	respondWithTemplate(w, tmpl, response{s.config.HttpHost, *overlay})
+
+	if plugin == "football" {
+		type response struct {
+			Domain  string
+			Overlay models.FootballOverlay
+		}
+		overlay, err := s.database.FootballOverlayCollection.FindById(id)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, err)
+			return
+		}
+		respondWithTemplate(w, tmpl, response{s.config.HttpHost, *overlay})
+	} else if plugin == "basketball" {
+		type response struct {
+			Domain  string
+			Overlay models.BasketballOverlay
+		}
+		overlay, err := s.database.BasketballOverlayCollection.FindById(id)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, err)
+			return
+		}
+		respondWithTemplate(w, tmpl, response{s.config.HttpHost, *overlay})
+	}
 }
 
 func (s *AppServer) updateOverlay(w http.ResponseWriter, r *http.Request) {

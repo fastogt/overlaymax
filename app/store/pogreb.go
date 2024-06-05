@@ -8,8 +8,9 @@ import (
 )
 
 type PogrebDB struct {
-	OverlayCollection *OverlayCollection
-	db                *pogreb.DB
+	FootballOverlayCollection   *FotballOverlayCollection
+	BasketballOverlayCollection *BasketballOverlayCollection
+	db                          *pogreb.DB
 }
 
 func (db *PogrebDB) InitializePogrebDB(dbPath string) error {
@@ -31,7 +32,8 @@ func (db *PogrebDB) InitializePogrebDB(dbPath string) error {
 	}
 
 	db.db = pdb
-	db.OverlayCollection = NewOverlayCollection(pdb)
+	db.FootballOverlayCollection = NewFootballOverlayCollection(pdb)
+	db.BasketballOverlayCollection = NewBasketballOverlayCollection(pdb)
 	return nil
 }
 

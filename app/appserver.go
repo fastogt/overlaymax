@@ -68,7 +68,7 @@ func (app *AppServer) configServerRoutes() *http.Server {
 	router.HandleFunc("/", app.Index).Methods("GET")
 	router.HandleFunc("/overlay/{plugin}/admin", app.AdminResponce).Methods("GET")
 	router.HandleFunc("/overlay/{plugin}/{id}", app.OverlayResponce).Methods("GET")
-	router.HandleFunc("/overlay/create", app.CreateOverlay).Methods("POST")
+	router.HandleFunc("/overlay/{plugin}/create", app.CreateOverlay).Methods("POST")
 	router.PathPrefix("/static/").HandlerFunc(app.Static)
 
 	// WS connection
