@@ -1,6 +1,8 @@
 package store
 
 import (
+	"io"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -13,6 +15,9 @@ type PogrebDB struct {
 }
 
 func (db *PogrebDB) InitializePogrebDB(dbPath string) error {
+	discardLogger := log.New(io.Discard, "", 0)
+	pogreb.SetLogger(discardLogger)
+
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return err
