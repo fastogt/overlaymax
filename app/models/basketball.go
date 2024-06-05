@@ -15,7 +15,7 @@ type BasketballOverlayFields struct {
 }
 
 type BasketballOverlay struct {
-	ID        string `json:"id"`
+	BaseOverlay
 	ShowLogos bool   `json:"show_logos"`
 	BasketballOverlayFields
 }
@@ -53,5 +53,5 @@ func NewBasketballOverlay() *BasketballOverlay {
 	showLogos := true
 
 	fields := BasketballOverlayFields{base, players, time}
-	return &BasketballOverlay{*id, showLogos, fields}
+	return &BasketballOverlay{BaseOverlay{ID: *id}, showLogos, fields}
 }

@@ -3,6 +3,7 @@ package app
 import (
 	"backend/app/models"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -60,74 +61,60 @@ func (s *AppServer) Static(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *AppServer) CreateOverlay(w http.ResponseWriter, r *http.Request) {
+	type response struct {
+		Status bool `json:"status"`
+	}
+
 	params := mux.Vars(r)
 	plugin := params["plugin"]
 
+	var base models.BaseOverlay
+	var overlayData []byte
+
 	if plugin == "football" {
-		type response struct {
-			Status bool `json:"status"`
-		}
 		var overlay models.FootballOverlay
 		if err := json.NewDecoder(r.Body).Decode(&overlay); err != nil {
 			respondWithError(w, http.StatusBadRequest, err)
 			return
 		}
-		id := overlay.ID
-
-		_, err := s.database.FootballOverlayCollection.FindById(id)
-		if err == nil {
-			if err = s.database.FootballOverlayCollection.Update(&overlay); err != nil {
-				respondWithError(w, http.StatusBadRequest, err)
-				return
-			}
-		} else {
-			if err := s.database.FootballOverlayCollection.Create(&overlay); err != nil {
-				respondWithError(w, http.StatusBadRequest, err)
-				return
-			}
-		}
-
+		base.ID = overlay.ID
 		data, err := json.Marshal(overlay)
 		if err != nil {
 			respondWithError(w, http.StatusBadRequest, err)
 			return
 		}
-
-		s.wsUpdatesManager.BroadcastUpdateOverlay(overlay.ID, data)
-		respondWithStructJSON(w, http.StatusCreated, response{Status: true})
+		overlayData = data
 	} else if plugin == "basketball" {
-		type response struct {
-			Status bool `json:"status"`
-		}
 		var overlay models.BasketballOverlay
 		if err := json.NewDecoder(r.Body).Decode(&overlay); err != nil {
 			respondWithError(w, http.StatusBadRequest, err)
 			return
 		}
-		id := overlay.ID
-
-		_, err := s.database.BasketballOverlayCollection.FindById(id)
-		if err == nil {
-			if err = s.database.BasketballOverlayCollection.Update(&overlay); err != nil {
-				respondWithError(w, http.StatusBadRequest, err)
-				return
-			}
-		} else {
-			if err := s.database.BasketballOverlayCollection.Create(&overlay); err != nil {
-				respondWithError(w, http.StatusBadRequest, err)
-				return
-			}
-		}
-
+		base.ID = overlay.ID
 		data, err := json.Marshal(overlay)
 		if err != nil {
 			respondWithError(w, http.StatusBadRequest, err)
 			return
 		}
-
-		s.wsUpdatesManager.BroadcastUpdateOverlay(overlay.ID, data)
-		respondWithStructJSON(w, http.StatusCreated, response{Status: true})
+		overlayData = data
+	} else {
+		respondWithError(w, http.StatusBadRequest, errors.New("plugin not supported"))
+		return
 	}
+	_, err := s.database.OverlayCollection.FindById(base.ID)
+	if err == nil {
+		if err = s.database.OverlayCollection.Update(base.ID, overlayData); err != nil {
+			respondWithError(w, http.StatusBadRequest, err)
+			return
+		}
+	} else {
+		if err := s.database.OverlayCollection.Create(base.ID, overlayData); err != nil {
+			respondWithError(w, http.StatusBadRequest, err)
+			return
+		}
+	}
+	s.wsUpdatesManager.BroadcastUpdateOverlay(base.ID, overlayData)
+	respondWithStructJSON(w, http.StatusCreated, response{Status: true})
 }
 
 func (s *AppServer) AdminResponce(w http.ResponseWriter, r *http.Request) {
@@ -175,23 +162,35 @@ func (s *AppServer) OverlayResponce(w http.ResponseWriter, r *http.Request) {
 			Domain  string
 			Overlay models.FootballOverlay
 		}
-		overlay, err := s.database.FootballOverlayCollection.FindById(id)
+		data, err := s.database.OverlayCollection.FindById(id)
 		if err != nil {
 			respondWithError(w, http.StatusBadRequest, err)
 			return
 		}
-		respondWithTemplate(w, tmpl, response{s.config.HttpHost, *overlay})
+		var overlay models.FootballOverlay
+		err = json.Unmarshal(data, &overlay)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, err)
+			return
+		}
+		respondWithTemplate(w, tmpl, response{s.config.HttpHost, overlay})
 	} else if plugin == "basketball" {
 		type response struct {
 			Domain  string
 			Overlay models.BasketballOverlay
 		}
-		overlay, err := s.database.BasketballOverlayCollection.FindById(id)
+		data, err := s.database.OverlayCollection.FindById(id)
 		if err != nil {
 			respondWithError(w, http.StatusBadRequest, err)
 			return
 		}
-		respondWithTemplate(w, tmpl, response{s.config.HttpHost, *overlay})
+		var overlay models.BasketballOverlay
+		err = json.Unmarshal(data, &overlay)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, err)
+			return
+		}
+		respondWithTemplate(w, tmpl, response{s.config.HttpHost, overlay})
 	}
 }
 
