@@ -1,6 +1,8 @@
 package store
 
 import (
+	"io"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -8,12 +10,14 @@ import (
 )
 
 type PogrebDB struct {
-	FootballOverlayCollection   *FotballOverlayCollection
-	BasketballOverlayCollection *BasketballOverlayCollection
-	db                          *pogreb.DB
+	OverlayCollection *OverlayCollection
+	db                *pogreb.DB
 }
 
 func (db *PogrebDB) InitializePogrebDB(dbPath string) error {
+	discardLogger := log.New(io.Discard, "", 0)
+	pogreb.SetLogger(discardLogger)
+
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return err
@@ -32,8 +36,7 @@ func (db *PogrebDB) InitializePogrebDB(dbPath string) error {
 	}
 
 	db.db = pdb
-	db.FootballOverlayCollection = NewFootballOverlayCollection(pdb)
-	db.BasketballOverlayCollection = NewBasketballOverlayCollection(pdb)
+	db.OverlayCollection = NewOverlayCollection(pdb)
 	return nil
 }
 

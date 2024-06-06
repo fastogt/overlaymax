@@ -25,8 +25,12 @@ type TimeLocation struct {
 	LocalStadium string                `json:"local_stadium"`
 }
 
-type FootballOverlay struct {
+type BaseOverlay struct {
 	ID        string `json:"id"`
+}
+
+type FootballOverlay struct {
+	BaseOverlay
 	ShowLogos bool   `json:"show_logos"`
 	FootballOverlayFields
 }
@@ -64,5 +68,5 @@ func NewFootballOverlay() *FootballOverlay {
 	showLogos := true
 
 	fields := FootballOverlayFields{base, players, time}
-	return &FootballOverlay{*id, showLogos, fields}
+	return &FootballOverlay{BaseOverlay{ID: *id}, showLogos, fields}
 }
