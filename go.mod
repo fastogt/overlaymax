@@ -1,6 +1,7 @@
 module backend
 
-go 1.18
+// github.com/gorilla/websocket 
+go 1.20
 
 require (
 	github.com/akrylysov/pogreb v0.10.2
