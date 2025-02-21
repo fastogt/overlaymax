@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	configPath := flag.String("config", "etc/overlaymax.conf", "service config")
+	configPath := flag.String("config", "/etc/overlaymax.conf", "service config")
 	flag.Parse()
 	cfg, err := app.NewConfig(*configPath)
 	if err != nil {
