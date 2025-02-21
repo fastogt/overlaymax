@@ -26,12 +26,12 @@ type TimeLocation struct {
 }
 
 type BaseOverlay struct {
-	ID        string `json:"id"`
+	ID string `json:"id"`
 }
 
 type FootballOverlay struct {
 	BaseOverlay
-	ShowLogos bool   `json:"show_logos"`
+	ShowLogos bool `json:"show_logos"`
 	FootballOverlayFields
 }
 
@@ -57,12 +57,17 @@ func (f *FootballOverlay) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func NewFootballOverlay() *FootballOverlay {
-	base := OverlayBase{BGColor: "green"}
+func NewFootballOverlay(s *string) *FootballOverlay {
+	btnName := "Start"
 	id, err := gofastogt.GenerateString(24)
 	if err != nil {
 		log.Errorf("failed to generate id %v", err)
 	}
+	if s != nil {
+		id = s
+		btnName = "Apply"
+	}
+	base := OverlayBase{BGColor: "green", UpdButtonName: btnName}
 	players := []Player{{Team: "Barcelona", Score: 0, Logo: "/static/football/img/barcelona.png"}, {Team: "Manchester United", Score: 0, Logo: "/static/football/img/manchester_united.png"}}
 	time := TimeLocation{LocalTime: gofastogt.MakeUTCTimestamp(), LocalStadium: "USA National"}
 	showLogos := true

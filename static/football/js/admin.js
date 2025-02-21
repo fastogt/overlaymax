@@ -2,7 +2,7 @@ function updatePage(domain, pid) {
     let list = document.getElementById("show_logos");
     let btnUpdate = document.getElementById("btnUpdate")
     let received_msg = new Object();
-    btnUpdate.textContent = "Apply"
+    //btnUpdate.textContent = "Apply"
     received_msg.players = [{
         "team": document.getElementById("player_id_00").value,
         "score": parseInt(document.getElementById("player_id_score_00").value),

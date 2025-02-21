@@ -42,12 +42,17 @@ func (f *BasketballOverlay) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func NewBasketballOverlay() *BasketballOverlay {
-	base := OverlayBase{BGColor: "green"}
+func NewBasketballOverlay(s *string) *BasketballOverlay {
+	btnName := "Start"
 	id, err := gofastogt.GenerateString(24)
 	if err != nil {
 		log.Errorf("failed to generate id %v", err)
 	}
+	if s != nil {
+		id = s
+		btnName = "Apply"
+	}
+	base := OverlayBase{BGColor: "green", UpdButtonName: btnName}
 	players := []Player{{Team: "Golden State Warriors", Score: 0, Logo: "/static/basketball/img/golden_state_warriors.png"}, {Team: "Chicago Bulls", Score: 0, Logo: "/static/basketball/img/chicago_bulls.png"}}
 	time := TimeLocation{LocalTime: gofastogt.MakeUTCTimestamp(), LocalStadium: "USA National"}
 	showLogos := true

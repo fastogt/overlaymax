@@ -79,7 +79,6 @@ func (s *AppServer) CreateOverlay(w http.ResponseWriter, r *http.Request) {
 		}
 		base.ID = overlay.ID
 		data, err := json.Marshal(overlay)
-		print(data)
 		if err != nil {
 			respondWithError(w, http.StatusBadRequest, err)
 			return
@@ -136,25 +135,13 @@ func (s *AppServer) AdminResponce(w http.ResponseWriter, r *http.Request) {
 		}
 		var overlay models.FootballOverlay
 		if s.wsUpdatesManager.IsEmpty() {
-			println("EMPTY")
-			overlay = *models.NewFootballOverlay()
+			overlay = *models.NewFootballOverlay(nil)
 			respondWithTemplate(w, tmpl, response{s.config.HttpHost, overlay})
 		}
 		if !s.wsUpdatesManager.IsEmpty() {
-			println("NOT EMPTY")
 			for _, val := range s.wsUpdatesManager.GetWsConnections() {
 				id := val[0].GetOverlayID()
-				data, err := s.database.OverlayCollection.FindById(id)
-				if err != nil {
-					respondWithError(w, http.StatusBadRequest, err)
-					return
-				}
-				var overlay models.FootballOverlay
-				err = json.Unmarshal(data, &overlay)
-				if err != nil {
-					respondWithError(w, http.StatusBadRequest, err)
-					return
-				}
+				overlay = *models.NewFootballOverlay(&id)
 				respondWithTemplate(w, tmpl, response{s.config.HttpHost, overlay})
 				break
 			}
@@ -166,25 +153,13 @@ func (s *AppServer) AdminResponce(w http.ResponseWriter, r *http.Request) {
 		}
 		var overlay models.BasketballOverlay
 		if s.wsUpdatesManager.IsEmpty() {
-			println("EMPTY")
-			overlay = *models.NewBasketballOverlay()
+			overlay = *models.NewBasketballOverlay(nil)
 			respondWithTemplate(w, tmpl, response{s.config.HttpHost, overlay})
 		}
 		if !s.wsUpdatesManager.IsEmpty() {
-			println("NOT EMPTY")
 			for _, val := range s.wsUpdatesManager.GetWsConnections() {
 				id := val[0].GetOverlayID()
-				data, err := s.database.OverlayCollection.FindById(id)
-				if err != nil {
-					respondWithError(w, http.StatusBadRequest, err)
-					return
-				}
-				var overlay models.BasketballOverlay
-				err = json.Unmarshal(data, &overlay)
-				if err != nil {
-					respondWithError(w, http.StatusBadRequest, err)
-					return
-				}
+				overlay = *models.NewBasketballOverlay(&id)
 				respondWithTemplate(w, tmpl, response{s.config.HttpHost, overlay})
 				break
 			}

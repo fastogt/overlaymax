@@ -11,6 +11,7 @@ function convertLocalDate(localTime) {
 
 
 function changeOverlay(received_msg) {
+    print(received_msg)
     // Players name
     document.getElementById("player_id_0").textContent = received_msg["players"][0]["team"];
     document.getElementById("player_id_1").textContent = received_msg["players"][1]["team"];
@@ -28,6 +29,7 @@ function changeOverlay(received_msg) {
     // BG_COLOR
     document.getElementById("downline_up").style.backgroundColor = received_msg["bg_color"]
     document.body.style.backgroundColor = received_msg["bg_color"]
+    document.getElementById("btnUpdate").textContent = received_msg["btn_name"]
     // Show, hide logos
     if (received_msg.show_logos == false) {
        document.getElementById("total_info").style.display = 'none';
