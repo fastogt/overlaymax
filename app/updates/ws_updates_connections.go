@@ -30,6 +30,18 @@ type WsUpdatesConnections struct {
 	overlayID string
 }
 
+func (ws *WsUpdatesConnections) GetConn() *websocket.Conn {
+	return ws.conn
+}
+
+func (ws *WsUpdatesConnections) GetClient() IWsClientConnectionClient {
+	return ws.client
+}
+
+func (ws *WsUpdatesConnections) GetOverlayID() string {
+	return ws.overlayID
+}
+
 func NewWsUpdatesConnection(conn *websocket.Conn, client IWsClientConnectionClient, overlayID string) *WsUpdatesConnections {
 	return &WsUpdatesConnections{conn: conn, client: client, overlayID: overlayID}
 }

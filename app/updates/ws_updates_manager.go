@@ -15,6 +15,19 @@ type UpdatesManagerWs struct {
 	updateConnections WsConnections
 }
 
+func (app *UpdatesManagerWs) IsEmpty() bool {
+	if len(app.updateConnections) == 0 {
+		return true
+	}
+	return false
+}
+
+func (app *UpdatesManagerWs) GetWsConnections() WsConnections {
+	app.mutex.Lock()
+	defer app.mutex.Unlock()
+	return app.updateConnections
+}
+
 func NewWsUpdateManager() *UpdatesManagerWs {
 	return &UpdatesManagerWs{updateConnections: WsConnections{}, mutex: sync.Mutex{}}
 }

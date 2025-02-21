@@ -16,7 +16,7 @@ type BasketballOverlayFields struct {
 
 type BasketballOverlay struct {
 	BaseOverlay
-	ShowLogos bool   `json:"show_logos"`
+	ShowLogos bool `json:"show_logos"`
 	BasketballOverlayFields
 }
 
