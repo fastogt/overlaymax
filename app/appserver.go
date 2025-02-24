@@ -66,7 +66,7 @@ func (app *AppServer) configLogger() {
 func (app *AppServer) configServerRoutes() *http.Server {
 	router := mux.NewRouter()
 	router.HandleFunc("/", app.Index).Methods("GET")
-	router.HandleFunc("/overlay/{plugin}/admin/{id}", app.AdminResponce).Methods("GET")
+	router.HandleFunc("/overlay/{plugin}/admin", app.AdminResponce).Methods("GET")
 	router.HandleFunc("/overlay/{plugin}/{id}", app.OverlayResponce).Methods("GET")
 	router.HandleFunc("/overlay/{plugin}/create", app.CreateOverlay).Methods("POST")
 	router.PathPrefix("/static/").HandlerFunc(app.Static)
