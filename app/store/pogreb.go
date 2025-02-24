@@ -12,12 +12,12 @@ import (
 type PogrebDB struct {
 	OverlayCollection *OverlayCollection
 	db                *pogreb.DB
+	IsStarted         bool
 }
 
 func (db *PogrebDB) InitializePogrebDB(dbPath string) error {
 	discardLogger := log.New(io.Discard, "", 0)
 	pogreb.SetLogger(discardLogger)
-
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return err

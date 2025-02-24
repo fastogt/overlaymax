@@ -120,8 +120,11 @@ func (s *AppServer) CreateOverlay(w http.ResponseWriter, r *http.Request) {
 func (s *AppServer) AdminResponce(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	plugin := params["plugin"]
-
 	tmpl := template.New("admin.html")
+	for i := range params {
+		println(i)
+	}
+
 	tmpl, err := tmpl.ParseFiles(fmt.Sprintf("static/%s/admin.html", plugin))
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, err)
@@ -142,6 +145,7 @@ func (s *AppServer) AdminResponce(w http.ResponseWriter, r *http.Request) {
 			for _, val := range s.wsUpdatesManager.GetWsConnections() {
 				id := val[0].GetOverlayID()
 				overlay = *models.NewFootballOverlay(&id)
+				overlay.OverlayBase.UpdButtonName = "Apply"
 				respondWithTemplate(w, tmpl, response{s.config.HttpHost, overlay})
 				break
 			}
