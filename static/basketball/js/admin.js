@@ -17,7 +17,7 @@ function updatePage(domain, pid) {
     let stadium = document.getElementById("local_stadium")
     received_msg.date_time_location = {
         "local_time": local_time,
-        "local_stadium": stadium.textContent // FIXME
+        "local_stadium": stadium.value // FIXME
     }
     received_msg.bg_color = "green"
     received_msg.id = pid

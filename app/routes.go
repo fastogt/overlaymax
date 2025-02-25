@@ -61,6 +61,7 @@ func (s *AppServer) Static(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *AppServer) CreateOverlay(w http.ResponseWriter, r *http.Request) {
+	println("CREATEOVERLAY APPSERVER")
 	type response struct {
 		Status bool `json:"status"`
 	}
@@ -73,12 +74,14 @@ func (s *AppServer) CreateOverlay(w http.ResponseWriter, r *http.Request) {
 
 	if plugin == "football" {
 		var overlay models.FootballOverlay
+		println("Try to decode")
 		if err := json.NewDecoder(r.Body).Decode(&overlay); err != nil {
 			respondWithError(w, http.StatusBadRequest, err)
 			return
 		}
 		base.ID = overlay.ID
 		data, err := json.Marshal(overlay)
+		println("Try to get data marshal")
 		if err != nil {
 			respondWithError(w, http.StatusBadRequest, err)
 			return
@@ -118,13 +121,10 @@ func (s *AppServer) CreateOverlay(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *AppServer) AdminResponce(w http.ResponseWriter, r *http.Request) {
+	println("ADMINRESPONSE APPSERVER")
 	params := mux.Vars(r)
 	plugin := params["plugin"]
 	tmpl := template.New("admin.html")
-	for i := range params {
-		println(i)
-	}
-
 	tmpl, err := tmpl.ParseFiles(fmt.Sprintf("static/%s/admin.html", plugin))
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, err)
@@ -139,17 +139,26 @@ func (s *AppServer) AdminResponce(w http.ResponseWriter, r *http.Request) {
 		var overlay models.FootballOverlay
 		if s.wsUpdatesManager.IsEmpty() {
 			overlay = *models.NewFootballOverlay(nil)
-			respondWithTemplate(w, tmpl, response{s.config.HttpHost, overlay})
-		}
-		if !s.wsUpdatesManager.IsEmpty() {
-			for _, val := range s.wsUpdatesManager.GetWsConnections() {
-				id := val[0].GetOverlayID()
-				overlay = *models.NewFootballOverlay(&id)
-				overlay.OverlayBase.UpdButtonName = "Apply"
-				respondWithTemplate(w, tmpl, response{s.config.HttpHost, overlay})
+			overlay.OverlayBase.UpdButtonName = "Start"
+		} else {
+			for _, con := range s.wsUpdatesManager.GetWsConnections() {
+				id := con[0].GetOverlayID()
+				data, err := s.database.OverlayCollection.FindById(id)
+				if err != nil {
+					overlay = *models.NewFootballOverlay(&id)
+					overlay.OverlayBase.UpdButtonName = "Start"
+				} else {
+					err = json.Unmarshal(data, &overlay)
+					if err != nil {
+						respondWithError(w, http.StatusBadRequest, err)
+						return
+					}
+					overlay.OverlayBase.UpdButtonName = "Apply"
+				}
 				break
 			}
 		}
+		respondWithTemplate(w, tmpl, response{s.config.HttpHost, overlay})
 	} else if plugin == "basketball" {
 		type response struct {
 			Domain  string
@@ -159,21 +168,31 @@ func (s *AppServer) AdminResponce(w http.ResponseWriter, r *http.Request) {
 		if s.wsUpdatesManager.IsEmpty() {
 			overlay = *models.NewBasketballOverlay(nil)
 			respondWithTemplate(w, tmpl, response{s.config.HttpHost, overlay})
-		}
-		if !s.wsUpdatesManager.IsEmpty() {
-			for _, val := range s.wsUpdatesManager.GetWsConnections() {
-				id := val[0].GetOverlayID()
-				overlay = *models.NewBasketballOverlay(&id)
-				respondWithTemplate(w, tmpl, response{s.config.HttpHost, overlay})
+		} else {
+			for _, con := range s.wsUpdatesManager.GetWsConnections() {
+				id := con[0].GetOverlayID()
+				data, err := s.database.OverlayCollection.FindById(id)
+				if err != nil {
+					overlay = *models.NewBasketballOverlay(&id)
+					overlay.OverlayBase.UpdButtonName = "Start"
+				} else {
+					err = json.Unmarshal(data, &overlay)
+					if err != nil {
+						respondWithError(w, http.StatusBadRequest, err)
+						return
+					}
+					overlay.OverlayBase.UpdButtonName = "Apply"
+				}
 				break
 			}
 		}
-		//respondWithTemplate(w, tmpl, response{s.config.HttpHost, overlay})
+		respondWithTemplate(w, tmpl, response{s.config.HttpHost, overlay})
 	}
 
 }
 
 func (s *AppServer) OverlayResponce(w http.ResponseWriter, r *http.Request) {
+	println("OVERLAYRESPONSE APPSERVER")
 	params := mux.Vars(r)
 	plugin := params["plugin"]
 	id := params["id"]
@@ -228,7 +247,7 @@ func (s *AppServer) updateOverlay(w http.ResponseWriter, r *http.Request) {
 		log.Error(err)
 		return
 	}
-
+	println("UPDATEOVERLAY APPSERVER")
 	params := mux.Vars(r)
 	overlayID := params["id"]
 	ws := s.wsUpdatesManager.CreateWsUpdateConnection(c, overlayID)
