@@ -28,7 +28,7 @@ function changeOverlay(received_msg) {
     // BG_COLOR
     document.getElementById("downline_up").style.backgroundColor = received_msg["bg_color"]
     document.body.style.backgroundColor = received_msg["bg_color"]
-    document.getElementById("btnUpdate").textContent = received_msg["btn_name"]
+    document.getElementById("btnUpdate").textContent = "Apply"
     // Show, hide logos
     if (received_msg.show_logos == false) {
        document.getElementById("total_info").style.display = 'none';

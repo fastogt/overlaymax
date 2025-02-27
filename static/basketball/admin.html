@@ -67,7 +67,11 @@
                     <option value="0">SHOW</option>
                     <option value="1">HIDE</option>
                 </select>
-                <button id="btnUpdate" class="btn" onclick="updatePage('{{.Domain}}', '{{.Overlay.ID}}')">{{.Overlay.UpdButtonName}}</button>
+                {{if .Overlay.Started}}
+                    <button id="btnUpdate" class="btn" onclick="updatePage('{{.Domain}}', '{{.Overlay.ID}}')">Apply</button>
+                {{else}}
+                    <button id="btnUpdate" class="btn" onclick="updatePage('{{.Domain}}', '{{.Overlay.ID}}')">Start</button>
+                {{end}}
             </div>
             <div id="page_id">{{.Domain}}/overlay/basketball/admin/{{.Overlay.ID}}</div>
         </footer>

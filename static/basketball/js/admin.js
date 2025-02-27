@@ -1,8 +1,8 @@
 function updatePage(domain, pid) {
     let list = document.getElementById("show_logos");
-    //let btnUpdate = document.getElementById("btnUpdate")
-    let received_msg = new Object();
-    //btnUpdate.textContent = "Apply"
+    let btnUpdate = document.getElementById("btnUpdate")
+    let received_msg = new Object(); 
+    btnUpdate.textContent = "Apply"
     received_msg.players = [{
         "team": document.getElementById("player_id_00").value,
         "score": parseInt(document.getElementById("player_id_score_00").value),
@@ -17,7 +17,7 @@ function updatePage(domain, pid) {
     let stadium = document.getElementById("local_stadium")
     received_msg.date_time_location = {
         "local_time": local_time,
-        "local_stadium": stadium.value // FIXME
+        "local_stadium": stadium.textContent // FIXME
     }
     received_msg.bg_color = "green"
     received_msg.id = pid
@@ -26,13 +26,17 @@ function updatePage(domain, pid) {
     } else {
         received_msg.show_logos = true
     }
+    received_msg.started = true;
     $.ajax({
         type: 'POST',
         url: domain + "/overlay/basketball/create",
         data: JSON.stringify(received_msg),
         contentType: "application/json",
         dataType: 'json',
-        success: function () {}
+        started: true,
+        success: function () {
+            location.reload();
+        }
     })
 }
 

@@ -12,7 +12,6 @@ import (
 type PogrebDB struct {
 	OverlayCollection *OverlayCollection
 	db                *pogreb.DB
-	IsStarted         bool
 }
 
 func (db *PogrebDB) InitializePogrebDB(dbPath string) error {

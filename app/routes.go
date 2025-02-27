@@ -61,7 +61,6 @@ func (s *AppServer) Static(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *AppServer) CreateOverlay(w http.ResponseWriter, r *http.Request) {
-	println("CREATEOVERLAY APPSERVER")
 	type response struct {
 		Status bool `json:"status"`
 	}
@@ -74,14 +73,12 @@ func (s *AppServer) CreateOverlay(w http.ResponseWriter, r *http.Request) {
 
 	if plugin == "football" {
 		var overlay models.FootballOverlay
-		println("Try to decode")
 		if err := json.NewDecoder(r.Body).Decode(&overlay); err != nil {
 			respondWithError(w, http.StatusBadRequest, err)
 			return
 		}
 		base.ID = overlay.ID
 		data, err := json.Marshal(overlay)
-		println("Try to get data marshal")
 		if err != nil {
 			respondWithError(w, http.StatusBadRequest, err)
 			return
@@ -121,7 +118,6 @@ func (s *AppServer) CreateOverlay(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *AppServer) AdminResponce(w http.ResponseWriter, r *http.Request) {
-	println("ADMINRESPONSE APPSERVER")
 	params := mux.Vars(r)
 	plugin := params["plugin"]
 	tmpl := template.New("admin.html")
@@ -130,69 +126,85 @@ func (s *AppServer) AdminResponce(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, err)
 		return
 	}
+	if plugin == "football" {
+		type response struct {
+			Domain  string
+			Overlay models.FootballOverlay
+		}
+		overlay := models.NewFootballOverlay(nil)
+		data, err := json.Marshal(overlay)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, err)
+			return
+		}
+		if err := s.database.OverlayCollection.Create(overlay.ID, data); err != nil {
+			respondWithError(w, http.StatusBadRequest, err)
+			return
+		}
+		redirectPath := "/overlay/" + plugin + "/admin/" + overlay.ID
+		http.Redirect(w, r, redirectPath, http.StatusSeeOther)
+		return
+	} else if plugin == "basketball" {
+		overlay := models.NewBasketballOverlay(nil)
+		data, err := json.Marshal(overlay)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, err)
+			return
+		}
+		if err := s.database.OverlayCollection.Create(overlay.ID, data); err != nil {
+			respondWithError(w, http.StatusBadRequest, err)
+			return
+		}
+		redirectPath := "/overlay/" + plugin + "/admin/" + overlay.ID
+		http.Redirect(w, r, redirectPath, http.StatusSeeOther)
+		return
+	}
+}
 
+func (s *AppServer) AdminIdResponce(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	plugin := params["plugin"]
+	overlayID := params["id"]
+	tmpl := template.New("admin.html")
+	tmpl, err := tmpl.ParseFiles(fmt.Sprintf("static/%s/admin.html", plugin))
+	data, err := s.database.OverlayCollection.FindById(overlayID)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, err)
+		return
+	}
 	if plugin == "football" {
 		type response struct {
 			Domain  string
 			Overlay models.FootballOverlay
 		}
 		var overlay models.FootballOverlay
-		if s.wsUpdatesManager.IsEmpty() {
-			overlay = *models.NewFootballOverlay(nil)
-			overlay.OverlayBase.UpdButtonName = "Start"
+		err := json.Unmarshal(data, &overlay)
+		if err == nil {
+			respondWithTemplate(w, tmpl, response{s.config.HttpHost, overlay})
+			return
 		} else {
-			for _, con := range s.wsUpdatesManager.GetWsConnections() {
-				id := con[0].GetOverlayID()
-				data, err := s.database.OverlayCollection.FindById(id)
-				if err != nil {
-					overlay = *models.NewFootballOverlay(&id)
-					overlay.OverlayBase.UpdButtonName = "Start"
-				} else {
-					err = json.Unmarshal(data, &overlay)
-					if err != nil {
-						respondWithError(w, http.StatusBadRequest, err)
-						return
-					}
-					overlay.OverlayBase.UpdButtonName = "Apply"
-				}
-				break
-			}
+			respondWithError(w, http.StatusBadRequest, err)
+			return
 		}
-		respondWithTemplate(w, tmpl, response{s.config.HttpHost, overlay})
-	} else if plugin == "basketball" {
+	}
+	if plugin == "basketball" {
 		type response struct {
 			Domain  string
 			Overlay models.BasketballOverlay
 		}
 		var overlay models.BasketballOverlay
-		if s.wsUpdatesManager.IsEmpty() {
-			overlay = *models.NewBasketballOverlay(nil)
+		err := json.Unmarshal(data, &overlay)
+		if err == nil {
 			respondWithTemplate(w, tmpl, response{s.config.HttpHost, overlay})
+			return
 		} else {
-			for _, con := range s.wsUpdatesManager.GetWsConnections() {
-				id := con[0].GetOverlayID()
-				data, err := s.database.OverlayCollection.FindById(id)
-				if err != nil {
-					overlay = *models.NewBasketballOverlay(&id)
-					overlay.OverlayBase.UpdButtonName = "Start"
-				} else {
-					err = json.Unmarshal(data, &overlay)
-					if err != nil {
-						respondWithError(w, http.StatusBadRequest, err)
-						return
-					}
-					overlay.OverlayBase.UpdButtonName = "Apply"
-				}
-				break
-			}
+			respondWithError(w, http.StatusBadRequest, err)
+			return
 		}
-		respondWithTemplate(w, tmpl, response{s.config.HttpHost, overlay})
 	}
-
 }
 
 func (s *AppServer) OverlayResponce(w http.ResponseWriter, r *http.Request) {
-	println("OVERLAYRESPONSE APPSERVER")
 	params := mux.Vars(r)
 	plugin := params["plugin"]
 	id := params["id"]
@@ -247,7 +259,6 @@ func (s *AppServer) updateOverlay(w http.ResponseWriter, r *http.Request) {
 		log.Error(err)
 		return
 	}
-	println("UPDATEOVERLAY APPSERVER")
 	params := mux.Vars(r)
 	overlayID := params["id"]
 	ws := s.wsUpdatesManager.CreateWsUpdateConnection(c, overlayID)

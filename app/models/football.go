@@ -40,6 +40,7 @@ func (f *FootballOverlay) UnmarshalJSON(data []byte) error {
 		ID *string `json:"id"`
 		FootballOverlayFields
 		ShowLogos *bool `json:"show_logos"`
+		Started   *bool `json:"started"`
 	}{}
 	err := json.Unmarshal(data, &request)
 	if err != nil {
@@ -54,20 +55,21 @@ func (f *FootballOverlay) UnmarshalJSON(data []byte) error {
 	f.ShowLogos = *request.ShowLogos
 	f.ID = *request.ID
 	f.FootballOverlayFields = request.FootballOverlayFields
+	if request.Started != nil {
+		f.Started = *request.Started
+	}
 	return nil
 }
 
 func NewFootballOverlay(s *string) *FootballOverlay {
-	btnName := "Start"
 	id, err := gofastogt.GenerateString(24)
 	if err != nil {
 		log.Errorf("failed to generate id %v", err)
 	}
 	if s != nil {
 		id = s
-		btnName = "Apply"
 	}
-	base := OverlayBase{BGColor: "green", UpdButtonName: btnName}
+	base := OverlayBase{BGColor: "green", Started: false}
 	players := []Player{{Team: "Barcelona", Score: 0, Logo: "/static/football/img/barcelona.png"}, {Team: "Manchester United", Score: 0, Logo: "/static/football/img/manchester_united.png"}}
 	time := TimeLocation{LocalTime: gofastogt.MakeUTCTimestamp(), LocalStadium: "USA National"}
 	showLogos := true
