@@ -1,7 +1,7 @@
 module backend
 
 // github.com/gorilla/websocket
-go 1.20
+go 1.23.0
 
 require (
 	github.com/akrylysov/pogreb v0.10.2
@@ -9,8 +9,8 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/rs/cors v1.11.1
 	github.com/sirupsen/logrus v1.9.3
-	gitlab.com/fastogt/gofastogt v1.12.0
+	gitlab.com/fastogt/gofastogt v1.14.3
 	gopkg.in/yaml.v2 v2.4.0
 )
 
-require golang.org/x/sys v0.30.0 // indirect
+require golang.org/x/sys v0.33.0 // indirect
