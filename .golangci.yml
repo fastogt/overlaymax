@@ -1,0 +1,38 @@
+version: "2"
+linters:
+  enable:
+    - bodyclose
+    - contextcheck
+    - gocritic
+  disable:
+    - exhaustruct
+    - godot
+    - wsl
+  settings:
+    staticcheck:
+      checks:
+        - "all"
+        - "-QF1003"
+        - "-ST1003"
+        - "-ST1016"
+    gocritic:
+      disabled-checks:
+        - ifElseChain
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

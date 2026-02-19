@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"text/template"
 
@@ -28,7 +28,7 @@ func (s *AppServer) Index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	plugins := []Plugin{}
-	nodes, err := ioutil.ReadDir("static")
+	nodes, err := os.ReadDir("static")
 	if err == nil {
 		for _, node := range nodes {
 			if node.IsDir() {

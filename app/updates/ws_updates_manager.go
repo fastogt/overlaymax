@@ -23,7 +23,7 @@ func (app *UpdatesManagerWs) BroadcastUpdateOverlay(oid string, message json.Raw
 	app.mutex.Lock()
 	overlay := app.updateConnections[oid]
 	for _, ws := range overlay {
-		ws.SendUpdateOverlay(message)
+		_ = ws.SendUpdateOverlay(message)
 	}
 	app.mutex.Unlock()
 }

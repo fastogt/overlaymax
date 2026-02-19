@@ -64,7 +64,7 @@ func NewFootballOverlay() *FootballOverlay {
 		log.Errorf("failed to generate id %v", err)
 	}
 	players := []Player{{Team: "Barcelona", Score: 0, Logo: "/static/football/img/barcelona.png"}, {Team: "Manchester United", Score: 0, Logo: "/static/football/img/manchester_united.png"}}
-	time := TimeLocation{LocalTime: gofastogt.MakeUTCTimestamp(), LocalStadium: "USA National"}
+	time := TimeLocation{LocalTime: gofastogt.NewUTCTimestamp(), LocalStadium: "USA National"}
 	showLogos := true
 
 	fields := FootballOverlayFields{base, players, time}
