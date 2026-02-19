@@ -7,8 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/gorilla/mux"
-
+	"github.com/go-chi/chi/v5"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -64,12 +63,12 @@ func (app *AppServer) configLogger() {
 }
 
 func (app *AppServer) configServerRoutes() *http.Server {
-	router := mux.NewRouter()
-	router.HandleFunc("/", app.Index).Methods("GET")
-	router.HandleFunc("/overlay/{plugin}/admin", app.AdminResponce).Methods("GET")
-	router.HandleFunc("/overlay/{plugin}/{id}", app.OverlayResponce).Methods("GET")
-	router.HandleFunc("/overlay/{plugin}/create", app.CreateOverlay).Methods("POST")
-	router.PathPrefix("/static/").HandlerFunc(app.Static)
+	router := chi.NewRouter()
+	router.Get("/", app.Index)
+	router.Get("/overlay/{plugin}/admin", app.AdminResponce)
+	router.Get("/overlay/{plugin}/{id}", app.OverlayResponce)
+	router.Post("/overlay/{plugin}/create", app.CreateOverlay)
+	router.Handle("/static/*", http.HandlerFunc(app.Static))
 
 	// WS connection
 	router.HandleFunc("/ws/{id}", func(w http.ResponseWriter, r *http.Request) {

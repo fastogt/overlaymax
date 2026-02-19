@@ -10,7 +10,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
 )
@@ -65,8 +65,7 @@ func (s *AppServer) CreateOverlay(w http.ResponseWriter, r *http.Request) {
 		Status bool `json:"status"`
 	}
 
-	params := mux.Vars(r)
-	plugin := params["plugin"]
+	plugin := chi.URLParam(r, "plugin")
 
 	var base models.BaseOverlay
 	var overlayData []byte
@@ -118,8 +117,7 @@ func (s *AppServer) CreateOverlay(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *AppServer) AdminResponce(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	plugin := params["plugin"]
+	plugin := chi.URLParam(r, "plugin")
 
 	tmpl := template.New("admin.html")
 	tmpl, err := tmpl.ParseFiles(fmt.Sprintf("static/%s/admin.html", plugin))
@@ -147,9 +145,8 @@ func (s *AppServer) AdminResponce(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *AppServer) OverlayResponce(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	plugin := params["plugin"]
-	id := params["id"]
+	plugin := chi.URLParam(r, "plugin")
+	id := chi.URLParam(r, "id")
 
 	tmpl, err := template.New("index.html").ParseFiles(fmt.Sprintf("static/%s/index.html", plugin))
 	if err != nil {
@@ -202,8 +199,7 @@ func (s *AppServer) updateOverlay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params := mux.Vars(r)
-	overlayID := params["id"]
+	overlayID := chi.URLParam(r, "id")
 	ws := s.wsUpdatesManager.CreateWsUpdateConnection(c, overlayID)
 	s.wsUpdatesManager.RegisterWsUpdatesClientConnection(ws)
 	defer ws.Close()

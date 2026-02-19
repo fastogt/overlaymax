@@ -17,7 +17,7 @@ Application (root-level module, no `src/` directory). Module: `backend`. Entry p
 
 Default port: **8180**. Config: `configs/overlaymax.conf`
 
-**Note:** Uses `gorilla/mux` for routing (not chi). Root-level Go module — no `src/` subdirectory.
+Root-level Go module — no `src/` subdirectory.
 
 ### Key Packages
 
@@ -28,7 +28,7 @@ Default port: **8180**. Config: `configs/overlaymax.conf`
 
 ### Key Dependencies
 
-- `github.com/gorilla/mux` — HTTP routing
+- `github.com/go-chi/chi/v5` — HTTP routing
 - `github.com/gorilla/websocket` — WebSocket
 - `github.com/akrylysov/pogreb` — embedded KV database
 - `gitlab.com/fastogt/gofastogt` — core framework

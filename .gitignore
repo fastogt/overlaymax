@@ -11,3 +11,4 @@ go.sum
 *.dylib
 *.test
 *.out
+backend
