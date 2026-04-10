@@ -10,4 +10,4 @@ How to use:
 - Copy bottom view link
 - Insert this link into OBS/FastoCloud as browser source
 
-# Try this: https://overlay.fastocloud.com
+# Try this: [https://overlay.fastocloud.com](https://overlaymax.fastocloud.com/)
